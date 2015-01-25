@@ -32,6 +32,8 @@ extern volatile uint8_t keyboard_leds;
 #define KEY_RIGHT_ALT   0x40
 #define KEY_RIGHT_GUI   0x80
 
+#define KEY_DUMMY 0
+
 #define KEY_A                            4
 #define KEY_B                            5
 #define KEY_C                            6

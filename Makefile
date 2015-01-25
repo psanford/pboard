@@ -1,4 +1,4 @@
-MCU=atmega32u4
+MCU=at90usb1286
 
 F_CPU=16000000
 
@@ -45,4 +45,3 @@ $(TARGET).hex: $(TARGET)
 
 %.o: %.c
 	avr-gcc -std=gnu99 -Os -D F_CPU=$(F_CPU)UL -mmcu=$(MCU) -c -o $@ $<
-

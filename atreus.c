@@ -18,8 +18,8 @@ int current_layer_number = 0;
 // this gets reset every cycle
 int *current_layer;
 
-#define ROW_COUNT 4
-#define COL_COUNT 11
+#define ROW_COUNT 15
+#define COL_COUNT 7
 #define KEY_COUNT ROW_COUNT*COL_COUNT
 
 int pressed_count = 0;
@@ -59,33 +59,44 @@ int last_presses[KEY_COUNT];
 // Matrix scanning logic
 
 void record(int col, int row) {
+  if ((row * COL_COUNT) + col == KEY_ESC) {
+    reset();
+  }
   presses[pressed_count++] = (row * COL_COUNT) + col;
 };
 
 void activate_row(int row) {
-  PORTD = (char)(~(1 << row)) | 32; // leave the LED on
+  if (row < 8) {
+    PORTD = (char)(~(1 << row)) | 32; // leave the LED on
+  } else {
+    row = row % 8;
+    PORTC = (char)(~(1 << row)) | 32; // leave the LED on
+  }
   _delay_us(50);
 };
 
 void scan_row(int row) {
   // hard-coded reset safety-hatch for experimentation
   // if(((~PINF) & 64) && row == 3) reset();
-  unsigned int col_bits = ((~PINF << 4) & (1024 | 512 | 256)) | (~PINB & 255);
+  unsigned int col_bits = (~PINB & 255);
   for(int col = 0; col < COL_COUNT; col++) {
-    if(col_bits & 1024) record(col, row);
-    col_bits = col_bits << 1;
+    if(col_bits & (1 << col)) {
+      record(col, row);
+    }
   }
 };
+
 
 void scan_rows() {
   pressed_count = 0;
   for(int i = 0; i < ROW_COUNT; i++) {
     activate_row(i);
     scan_row(i);
+    /* pms_activate_row(i); */
+    /* pms_scan_row(i); */
   };
 };
 
-
 // Cycle functions
 
 void debounce(int passes_remaining) {
@@ -160,13 +171,21 @@ void calculate_presses() {
 
 void init() {
   CPU_PRESCALE(0);
-  DDRD = 255; // rows
-  DDRB = DDRF = 0; // columns
-  PORTB = PORTF = 255; // activate pullup resistors on inputs
+  /* DDRD = 255; // rows */
+  /* DDRB = DDRF = 0; // columns */
+  /* PORTB = PORTF = 255; // activate pullup resistors on inputs */
+
+  DDRD = DDRC = 255; // columns
+  DDRB = 0; // rows
+  PORTB = 255; // activate pullup resistors on inputs
+
+  /* pms_init_cols(); */
   usb_init();
   while (!usb_configured()) /* wait */ ;
   _delay_ms(500);
 };
+
+
 
 void clear_keys() {
   current_layer = layers[current_layer_number];
@@ -190,9 +209,11 @@ int main() {
 void reset(void) {
   UDCON = 1; USBCON = (1<<FRZCLK); UCSR1B = 0;
   _delay_ms(5);
+#if defined(__AVR_AT90USB1286__)             // Teensy++ 2.0
   EIMSK = 0; PCICR = 0; SPCR = 0; ACSR = 0; EECR = 0; ADCSRA = 0;
-  TIMSK0 = 0; TIMSK1 = 0; TIMSK3 = 0; TIMSK4 = 0; UCSR1B = 0; TWCR = 0;
-  DDRB = 0; DDRC = 0; DDRD = 0; DDRE = 0; DDRF = 0; TWCR = 0;
-  PORTB = 0; PORTC = 0; PORTD = 0; PORTE = 0; PORTF = 0;
-  asm volatile("jmp 0x7E00");
+  TIMSK0 = 0; TIMSK1 = 0; TIMSK2 = 0; TIMSK3 = 0; UCSR1B = 0; TWCR = 0;
+  DDRA = 0; DDRB = 0; DDRC = 0; DDRD = 0; DDRE = 0; DDRF = 0;
+  PORTA = 0; PORTB = 0; PORTC = 0; PORTD = 0; PORTE = 0; PORTF = 0;
+  asm volatile("jmp 0x1FC00");
+#endif
 };
