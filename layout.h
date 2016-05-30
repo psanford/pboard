@@ -87,6 +87,13 @@ int layer2[KEYCOUNT] = {
   /* LAYER(0), 0, KEYBOARD_LEFT_GUI, KEYBOARD_LEFT_SHIFT, KEY_BACKSPACE, KEYBOARD_LEFT_CTRL, KEY_SPACE, PRE_FUNCTION(1), 0, 0, FUNCTION(0) }; */
 };
 
+
+#define LED_PORT PORTF
+#define LED_KEYPAD_PIN 0
+#define LED_SCROLL_LOCK_PIN 1
+#define LED_NUM_LOCK_PIN 2
+#define LED_CAPS_LOCK_PIN 3
+
 int *layers[] = {layer0, layer1, layer2};
 
 int fn_decay = 0;

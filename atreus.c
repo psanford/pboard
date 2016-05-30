@@ -215,6 +215,9 @@ void init() {
   DDRB = 0; // rows
   PORTB = 255; // activate pullup resistors on inputs
 
+  // leds to off
+  PORTF = 0;
+
   /* pms_init_cols(); */
   usb_init();
   while (!usb_configured()) /* wait */ ;
