@@ -88,13 +88,13 @@ void scan_row(int row) {
   char str[128];
   for(int col = 0; col < COL_COUNT; col++) {
     if(col_bits & (1 << col)) {
-      itoa(col, str, 10);
-      print("col: ");
-      pms_print(str);
-      itoa(row, str, 10);
-      print(" row: ");
-      pms_print(str);
-      print("\n");
+      /* itoa(col, str, 10); */
+      /* print("col: "); */
+      /* pms_print(str); */
+      /* itoa(row, str, 10); */
+      /* print(" row: "); */
+      /* pms_print(str); */
+      /* print("\n"); */
 
       record(col, row);
     }
@@ -152,6 +152,16 @@ void calculate_presses() {
     print("\n");
 
     int keycode = current_layer[presses[i]];
+    itoa(keycode, str, 10);
+    print("keycode: ");
+    pms_print(str);
+    print("\n");
+
+    itoa(current_layer_number, str, 10);
+    print("layer: ");
+    pms_print(str);
+    print("\n");
+
     if(keycode >= MIN_FUNCTION && keycode <= MAX_FUNCTION) {
       // regular layout functions
       (layer_functions[keycode - MIN_FUNCTION])();
@@ -180,9 +190,6 @@ void calculate_presses() {
       // modifier plus keypress
       keyboard_modifier_keys |= (keycode >> 8);
       keyboard_keys[usb_presses++] = (keycode & 255);
-
-    } else if (keycode == KEY_ESC) {
-      reset();
     } else if(usb_presses < 6){
       // keypress
       keyboard_keys[usb_presses++] = keycode;
