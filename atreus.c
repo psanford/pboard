@@ -2,12 +2,13 @@
 #include <avr/io.h>
 #include <string.h>
 #include <util/delay.h>
-#include "usb_keyboard.h"
 
 // serial dependencies
 #include <avr/pgmspace.h>
 #include <stdint.h>
-#include "usb_serial.h"
+
+#include "usb_keyboard.h"
+#include "print.h"
 
 
 #define DEBOUNCE_PASSES 10
@@ -64,18 +65,18 @@ int last_presses[KEY_COUNT];
 
 // Matrix scanning logic
 
-int count = 0;
-
 void record(int col, int row) {
   presses[pressed_count++] = (row * COL_COUNT) + col;
 };
 
 void activate_row(int row) {
   if (row < 8) {
-    PORTD = (char)(~(1 << row)) | 32; // leave the LED on
+    PORTD = (char)(~(1 << row));
+    PORTC = 255;
   } else {
     row = row % 8;
-    PORTC = (char)(~(1 << row)) | 32; // leave the LED on
+    PORTC = (char)(~(1 << row));
+    PORTD = 255;
   }
   _delay_us(50);
 };
@@ -84,8 +85,17 @@ void scan_row(int row) {
   // hard-coded reset safety-hatch for experimentation
   // if(((~PINF) & 64) && row == 3) reset();
   unsigned int col_bits = (~PINB & 255);
+  char str[128];
   for(int col = 0; col < COL_COUNT; col++) {
     if(col_bits & (1 << col)) {
+      itoa(col, str, 10);
+      print("col: ");
+      pms_print(str);
+      itoa(row, str, 10);
+      print(" row: ");
+      pms_print(str);
+      print("\n");
+
       record(col, row);
     }
   }
@@ -134,7 +144,13 @@ void pre_invoke_functions() {
 
 void calculate_presses() {
   int usb_presses = 0;
+  char str[128];
   for(int i = 0; i < pressed_count; i++) {
+    itoa(presses[i], str, 10);
+    print("presses: ");
+    pms_print(str);
+    print("\n");
+
     int keycode = current_layer[presses[i]];
     if(keycode >= MIN_FUNCTION && keycode <= MAX_FUNCTION) {
       // regular layout functions
@@ -164,6 +180,7 @@ void calculate_presses() {
       // modifier plus keypress
       keyboard_modifier_keys |= (keycode >> 8);
       keyboard_keys[usb_presses++] = (keycode & 255);
+
     } else if (keycode == KEY_ESC) {
       reset();
     } else if(usb_presses < 6){
@@ -193,7 +210,6 @@ void init() {
 };
 
 
-
 void clear_keys() {
   current_layer = layers[current_layer_number];
   keyboard_modifier_keys = 0;
@@ -204,13 +220,14 @@ void clear_keys() {
 
 int main() {
   init();
-  count = 0;
+
   while(1) {
     clear_keys();
     debounce(DEBOUNCE_PASSES);
     pre_invoke_functions();
     calculate_presses();
     usb_keyboard_send();
+    count++;
   };
 };
 
