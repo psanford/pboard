@@ -227,7 +227,6 @@ int main() {
     pre_invoke_functions();
     calculate_presses();
     usb_keyboard_send();
-    count++;
   };
 };
 
