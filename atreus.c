@@ -1,3 +1,6 @@
+#define PMS_DEBUG 0
+#define PMS_DEBUG_ROW_COL 0
+
 #include <stdlib.h>
 #include <avr/io.h>
 #include <string.h>
@@ -88,14 +91,15 @@ void scan_row(int row) {
   char str[128];
   for(int col = 0; col < COL_COUNT; col++) {
     if(col_bits & (1 << col)) {
-      /* itoa(col, str, 10); */
-      /* print("col: "); */
-      /* pms_print(str); */
-      /* itoa(row, str, 10); */
-      /* print(" row: "); */
-      /* pms_print(str); */
-      /* print("\n"); */
-
+#ifdef PMS_DEBUG_ROW_COL
+      itoa(col, str, 10);
+      print("col: ");
+      pms_print(str);
+      itoa(row, str, 10);
+      print(" row: ");
+      pms_print(str);
+      print("\n");
+#endif
       record(col, row);
     }
   }
@@ -146,6 +150,7 @@ void calculate_presses() {
   int usb_presses = 0;
   char str[128];
   for(int i = 0; i < pressed_count; i++) {
+#ifdef PMS_DEBUG
     itoa(presses[i], str, 10);
     print("presses: ");
     pms_print(str);
@@ -161,7 +166,7 @@ void calculate_presses() {
     print("layer: ");
     pms_print(str);
     print("\n");
-
+#endif
     if(keycode >= MIN_FUNCTION && keycode <= MAX_FUNCTION) {
       // regular layout functions
       (layer_functions[keycode - MIN_FUNCTION])();

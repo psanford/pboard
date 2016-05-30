@@ -74,12 +74,21 @@
 #define DEBUG_TX_BUFFER		EP_DOUBLE_BUFFER
 
 
+#ifdef PMS_DEBUG
 static const uint8_t PROGMEM endpoint_config_table[] = {
 	0,
 	0,
 	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(KEYBOARD_SIZE) | KEYBOARD_BUFFER,
 	1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(DEBUG_TX_SIZE) | DEBUG_TX_BUFFER
 };
+#else
+static const uint8_t PROGMEM endpoint_config_table[] = {
+  0,
+  0,
+  1, EP_TYPE_INTERRUPT_IN,  EP_SIZE(KEYBOARD_SIZE) | KEYBOARD_BUFFER,
+  0
+};
+#endif
 
 /**************************************************************************
  *
@@ -160,6 +169,8 @@ static uint8_t const PROGMEM debug_hid_report_desc[] = {
 	0xC0					// end collection
 };
 
+#ifdef PMS_DEBUG
+
 #define CONFIG1_DESC_SIZE        (9+9+9+7+9+9+7)
 #define KEYBOARD_HID_DESC_OFFSET (9+9)
 #define DEBUG_HID_DESC_OFFSET    (9+9+9+7+9)
@@ -228,6 +239,50 @@ static const uint8_t PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
 	1					// bInterval
 };
 
+#else
+
+#define CONFIG1_DESC_SIZE        (9+9+9+7)
+#define KEYBOARD_HID_DESC_OFFSET (9+9)
+static uint8_t const PROGMEM config1_descriptor[CONFIG1_DESC_SIZE] = {
+  // configuration descriptor, USB spec 9.6.3, page 264-266, Table 9-10
+  9,                  // bLength;
+  2,                  // bDescriptorType;
+  LSB(CONFIG1_DESC_SIZE),         // wTotalLength
+  MSB(CONFIG1_DESC_SIZE),
+  1,                  // bNumInterfaces
+  1,                  // bConfigurationValue
+  0,                  // iConfiguration
+  0xC0,                   // bmAttributes
+  50,                 // bMaxPower
+  // interface descriptor, USB spec 9.6.5, page 267-269, Table 9-12
+  9,                  // bLength
+  4,                  // bDescriptorType
+  KEYBOARD_INTERFACE,         // bInterfaceNumber
+  0,                  // bAlternateSetting
+  1,                  // bNumEndpoints
+  0x03,                   // bInterfaceClass (0x03 = HID)
+  0x01,                   // bInterfaceSubClass (0x01 = Boot)
+  0x01,                   // bInterfaceProtocol (0x01 = Keyboard)
+  0,                  // iInterface
+  // HID interface descriptor, HID 1.11 spec, section 6.2.1
+  9,                  // bLength
+  0x21,                   // bDescriptorType
+  0x11, 0x01,             // bcdHID
+  0,                  // bCountryCode
+  1,                  // bNumDescriptors
+  0x22,                   // bDescriptorType
+  sizeof(keyboard_hid_report_desc),   // wDescriptorLength
+  0,
+  // endpoint descriptor, USB spec 9.6.6, page 269-271, Table 9-13
+  7,                  // bLength
+  5,                  // bDescriptorType
+  KEYBOARD_ENDPOINT | 0x80,       // bEndpointAddress
+  0x03,                   // bmAttributes (0x03=intr)
+  KEYBOARD_SIZE, 0,           // wMaxPacketSize
+  1                   // bInterval
+};
+#endif
+
 // If you're desperate for a little extra code memory, these strings
 // can be completely removed if iManufacturer, iProduct, iSerialNumber
 // in the device desciptor are changed to zeros.
@@ -264,8 +319,10 @@ static struct descriptor_list_struct {
   {0x0200, 0x0000, config1_descriptor, sizeof(config1_descriptor)},
   {0x2200, KEYBOARD_INTERFACE, keyboard_hid_report_desc, sizeof(keyboard_hid_report_desc)},
   {0x2100, KEYBOARD_INTERFACE, config1_descriptor+KEYBOARD_HID_DESC_OFFSET, 9},
+#ifdef PMS_DEBUG
 	{0x2200, DEBUG_INTERFACE, debug_hid_report_desc, sizeof(debug_hid_report_desc)},
 	{0x2100, DEBUG_INTERFACE, config1_descriptor+DEBUG_HID_DESC_OFFSET, 9},
+#endif
   {0x0300, 0x0000, (const uint8_t *)&string0, 4},
   {0x0301, 0x0409, (const uint8_t *)&string1, sizeof(STR_MANUFACTURER)},
   {0x0302, 0x0409, (const uint8_t *)&string2, sizeof(STR_PRODUCT)}
