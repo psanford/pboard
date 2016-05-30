@@ -36,8 +36,10 @@ layout.h: $(LAYOUT_DEPENDS)
 $(TARGET).o: layout.h
 usb_keyboard.o: usb_keyboard.h
 
-$(TARGET): $(TARGET).o usb_keyboard.o
-	avr-gcc -mmcu=$(MCU) usb_keyboard.o $(TARGET).o -o $(TARGET)
+print.o: print.h
+
+$(TARGET): $(TARGET).o usb_keyboard.o print.o
+	avr-gcc -mmcu=$(MCU) usb_keyboard.o print.o $(TARGET).o -o $(TARGET)
 
 $(TARGET).hex: $(TARGET)
 	avr-size $(TARGET)
