@@ -34,14 +34,15 @@
  **************************************************************************/
 
 // You can change these to give your code its own name.
-#define STR_MANUFACTURER    L"Technomancy"
-#define STR_PRODUCT         L"Atreus"
+#define STR_MANUFACTURER    L"sanford.io"
+#define STR_PRODUCT         L"pBoard"
 
 
 // Mac OS-X and Linux automatically load the correct drivers.  On
 // Windows, even though the driver is supplied by Microsoft, an
 // INF file is needed to load the driver.  These numbers need to
 // match the INF file.
+// These are the teensy keyboard vendorid and productid
 #define VENDOR_ID       0x16C0
 #define PRODUCT_ID      0x047C
 
