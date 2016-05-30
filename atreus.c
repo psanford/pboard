@@ -4,6 +4,12 @@
 #include <util/delay.h>
 #include "usb_keyboard.h"
 
+// serial dependencies
+#include <avr/pgmspace.h>
+#include <stdint.h>
+#include "usb_serial.h"
+
+
 #define DEBOUNCE_PASSES 10
 
 #define CPU_PRESCALE(n) (CLKPR = 0x80, CLKPR = (n))
@@ -58,10 +64,9 @@ int last_presses[KEY_COUNT];
 
 // Matrix scanning logic
 
+int count = 0;
+
 void record(int col, int row) {
-  if ((row * COL_COUNT) + col == KEY_ESC) {
-    reset();
-  }
   presses[pressed_count++] = (row * COL_COUNT) + col;
 };
 
@@ -159,6 +164,8 @@ void calculate_presses() {
       // modifier plus keypress
       keyboard_modifier_keys |= (keycode >> 8);
       keyboard_keys[usb_presses++] = (keycode & 255);
+    } else if (keycode == KEY_ESC) {
+      reset();
     } else if(usb_presses < 6){
       // keypress
       keyboard_keys[usb_presses++] = keycode;
@@ -197,6 +204,7 @@ void clear_keys() {
 
 int main() {
   init();
+  count = 0;
   while(1) {
     clear_keys();
     debounce(DEBOUNCE_PASSES);
