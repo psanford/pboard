@@ -12,6 +12,8 @@ extern uint8_t keyboard_modifier_keys;
 extern uint8_t keyboard_keys[6];
 extern volatile uint8_t keyboard_leds;
 
+int8_t usb_mouse_buttons(uint8_t left, uint8_t middle, uint8_t right);
+int8_t usb_mouse_move(int8_t x, int8_t y, int8_t wheel);
 
 int8_t usb_debug_putchar(uint8_t c);  // transmit a character
 void usb_debug_flush_output(void);  // immediately transmit any buffered output
