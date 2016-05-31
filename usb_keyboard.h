@@ -13,8 +13,8 @@ extern uint8_t keyboard_keys[6];
 extern volatile uint8_t keyboard_leds;
 
 
-int8_t usb_debug_putchar(uint8_t c);	// transmit a character
-void usb_debug_flush_output(void);	// immediately transmit any buffered output
+int8_t usb_debug_putchar(uint8_t c);  // transmit a character
+void usb_debug_flush_output(void);  // immediately transmit any buffered output
 
 #define KEY_CTRL    0x01
 #define KEY_SHIFT   0x02
