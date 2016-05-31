@@ -11,7 +11,10 @@
 #define LKEY_KEYPAD LAYER(0)
 
 #define PMS_INSERT KEY_DUMMY  /* KEY_INSERT */
-#define PMS_RIGHT_SHIFT KEY_ESC /* KEYBOARD_RIGHT_SHIFT */
+/* #define PMS_RIGHT_SHIFT KEY_ESC /\* KEYBOARD_RIGHT_SHIFT *\/ */
+
+#define PMS_MIDDLE_MOUSE FUNCTION(3)
+#define PMS_RIGHT_SHIFT PMS_MIDDLE_MOUSE
 
 #define KEYCOUNT 105
 
@@ -51,7 +54,7 @@ int layer1[KEYCOUNT] = {
 /*9*/KEY_9,     KEY_O,        KEY_L,            KEY_PERIOD,          KEY_LEFT_BRACE, KEY_DUMMY,          KEYBOARD_RIGHT_ALT,
 
 /*10*/KEY_0,    KEY_P,        KEY_SEMICOLON,    KEY_SLASH,           KEY_RIGHT_BRACE,KEY_DUMMY,          KEY_DUMMY,
-/*11*/KEY_MINUS,KEY_BACKSLASH,KEY_QUOTE,        PMS_RIGHT_SHIFT,     KEY_DUMMY,      KEY_DUMMY,          KEY_DUMMY,
+/*11*/KEY_MINUS,KEY_BACKSLASH,KEY_QUOTE,        PMS_MIDDLE_MOUSE,    KEY_DUMMY,      KEY_DUMMY,          KEY_DUMMY,
 /*12*/KEY_ESC,  KEY_F3,       KEY_F6,           KEY_F9,              KEY_F12,        KEY_PAUSE,          KEY_DUMMY,
 /*13*/KEY_F1,   KEY_F4,       KEY_F7,           KEY_F10,             KEY_PRINTSCREEN,LKEY_PROGRAM,       KEY_DUMMY,
 /*14*/KEY_F2,   KEY_F5,       FUNCTION(0),      KEY_F11,             KEY_SCROLL_LOCK,LKEY_KEYPAD,        KEY_DUMMY,
@@ -109,7 +112,15 @@ void layer_jump() {
   layer_to_jump = 2;
 };
 
-void (*layer_functions[])(void) = {reset, activate_fn, layer_jump};
+void middle_mouse() {
+  usb_mouse_buttons(0, 1, 0);
+  usb_mouse_buttons(0, 0, 0);
+};
+
+int cur_active_functions[] = {0, 0, 0, 0};
+int active_functions[] = {0, 0, 0, 0};
+
+void (*layer_functions[])(void) = {reset, activate_fn, layer_jump, middle_mouse};
 
 // When we are sending key combinations that include modifiers, the OS
 // can do some level of error-correction to prevent this scenario:

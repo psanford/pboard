@@ -149,13 +149,17 @@ void pre_invoke_functions() {
 void calculate_presses() {
   int usb_presses = 0;
   char str[128];
+  int funcs = sizeof(active_functions)/sizeof(active_functions[0]);
+  for (int i = 0; i < funcs; i++) {
+    cur_active_functions[i] = 0;
+  }
+
   for(int i = 0; i < pressed_count; i++) {
 #ifdef PMS_DEBUG
     itoa(presses[i], str, 10);
     print("presses: ");
     pms_print(str);
     print("\n");
-
     int keycode = current_layer[presses[i]];
     itoa(keycode, str, 10);
     print("keycode: ");
@@ -169,7 +173,7 @@ void calculate_presses() {
 #endif
     if(keycode >= MIN_FUNCTION && keycode <= MAX_FUNCTION) {
       // regular layout functions
-      (layer_functions[keycode - MIN_FUNCTION])();
+      cur_active_functions[keycode - MIN_FUNCTION] = 1;
     } else if(keycode >= MIN_PRE_FUNCTION && keycode <= MAX_PRE_FUNCTION) {
       // pre-invoke functions have already been processed
     } else if(keycode >= MIN_LAYER && keycode <= MAX_LAYER) {
@@ -200,6 +204,17 @@ void calculate_presses() {
       keyboard_keys[usb_presses++] = keycode;
     };
   };
+
+  for (int i = 0; i < funcs; i++) {
+    int is_active = cur_active_functions[i];
+    int was_active = active_functions[i];
+    if (is_active && !was_active) {
+      active_functions[i] = 1;
+      (layer_functions[i])();
+    } else if (was_active && !is_active) {
+      active_functions[i] = 0;
+    }
+  }
 };
 
 
