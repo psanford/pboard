@@ -11,6 +11,7 @@
 #define PMS_MIDDLE_MOUSE FUNCTION(3)
 #define PMS_RIGHT_SHIFT KEY_ESC
 #define PMS_RIGHT_ALT  PMS_MIDDLE_MOUSE
+#define PMS_RIGHT_CTRL KEY_F5
 
 #define KEYCOUNT 105
 
@@ -24,7 +25,7 @@ int layer0[KEYCOUNT] = {
 
 /*6*/KEY_6,     KEY_Y,        KEY_H,            KEY_N,               KEY_DOWN,       KEY_SPACE,          KEY_PAGE_DOWN,
 /*7*/KEY_7,     KEY_U,        KEY_J,            KEY_M,               KEY_DUMMY,      KEY_ENTER,          KEY_DUMMY,
-/*8*/KEY_8,     KEY_I,        KEY_K,            KEY_COMMA,           KEY_UP,         KEYBOARD_RIGHT_CTRL,KEY_PAGE_UP,
+/*8*/KEY_8,     KEY_I,        KEY_K,            KEY_COMMA,           KEY_UP,         PMS_RIGHT_CTRL,     KEY_PAGE_UP,
 
 /*9*/KEY_9,     KEY_O,        KEY_L,            KEY_PERIOD,          KEY_LEFT_BRACE, KEY_DUMMY,          PMS_RIGHT_ALT,
 
